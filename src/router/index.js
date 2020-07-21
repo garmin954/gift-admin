@@ -60,60 +60,88 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/auth',
+    path: '/system',
     component: Layout,
-    name: 'permission',
-    meta: { title: '权限管理', icon: 'table' },
+    name: 'system',
+    meta: { title: '系统设置', icon: 'table' },
     children: [
       {
-        path: 'user',
-        name: 'user',
-        component: () => import('@/views/user/admin_index'),
-        meta: { title: '管理员', icon: '' }
-      },
-      {
-        path: 'roles',
-        name: 'roles',
-        component: () => import('@/views/roles/index'),
-        meta: { title: '角色', icon: '' }
-      },
-      {
-        path: 'permission',
-        name: '_permission',
-        component: () => import('@/views/permission/index'),
-        meta: { title: '权限', icon: '' }
-      },
-      {
-        path: 'menu',
-        name: 'menu',
-        component: () => import('@/views/tree/index'),
-        meta: { title: '菜单', icon: '' }
-      },
-      {
-        path: 'operating_log',
-        name: 'operating_log',
-        component: () => import('@/views/operating/index'),
-        meta: { title: '操作日志', icon: '' }
+        path: 'index',
+        name: 'system_index',
+        component: () => import('@/views/system/index'),
+        meta: { title: '系统设置', icon: 'sets' },
       }
     ]
   },
   {
+    path: '/user',
+    component: Layout,
+    name: 'user',
+    meta: { title: '用户管理', icon: 'table' },
+    children: [
+      {
+        path: 'index',
+        name: 'user',
+        component: () => import('@/views/user/index'),
+        meta: { title: '用户管理', icon: 'user' },
+      }
+    ]
+  },
+  // {
+  //   path: '/auth',
+  //   component: Layout,
+  //   name: 'permission',
+  //   meta: { title: '权限管理', icon: 'auths' },
+  //   children: [
+  //     {
+  //       path: 'user',
+  //       name: 'user',
+  //       component: () => import('@/views/user/admin_index'),
+  //       meta: { title: '管理员', icon: 'auth' }
+  //     },
+  //     {
+  //       path: 'roles',
+  //       name: 'roles',
+  //       component: () => import('@/views/roles/index'),
+  //       meta: { title: '角色', icon: '' }
+  //     },
+  //     {
+  //       path: 'permission',
+  //       name: '_permission',
+  //       component: () => import('@/views/permission/index'),
+  //       meta: { title: '权限', icon: '' }
+  //     },
+  //     {
+  //       path: 'menu',
+  //       name: 'menu',
+  //       component: () => import('@/views/tree/index'),
+  //       meta: { title: '菜单', icon: '' }
+  //     },
+  //     {
+  //       path: 'operating_log',
+  //       name: 'operating_log',
+  //       component: () => import('@/views/operating/index'),
+  //       meta: { title: '操作日志', icon: '' }
+  //     }
+  //   ]
+  // },
+  {
     path: '/goods',
     component: Layout,
     name: 'goods',
-    meta: { title: '产品管理', icon: 'table' },
+    meta: { title: '产品管理', icon: 'order' },
     children: [
       {
         path: 'goods',
         name: 'goods_box',
         component: () => import('@/views/goods/goods/index'),
-        meta: { title: '商品列表', icon: '' },
+        meta: { title: '商品列表', icon: 'goods' },
         children: [
           {
             path: 'index',
             name: 'goods_index',
             component: () => import('@/views/goods/goods/list'),
-            meta: { title: '商品列表', icon: '' },
+            meta: { title: '商品列表', icon: 'goods' },
           },
           {
             path: 'add_edit',
@@ -128,13 +156,14 @@ export const constantRoutes = [
         path: 'goods_category',
         name: 'goods_category',
         component: () => import('@/views/goods/goods_category/index'),
+        meta: { title: '商品分类', icon: 'goods_category' },
         redirect: 'index',
         children: [
           {
             path: 'index',
             name: 'goods_category_index',
             component: () => import('@/views/goods/goods_category/list'),
-            meta: { title: '商品分类', icon: '' },
+            meta: { title: '商品分类', icon: 'goods_category' },
           },
           {
             path: 'add_edit',
@@ -152,7 +181,7 @@ export const constantRoutes = [
     path: '/banner',
     component: Layout,
     name: 'banner',
-    meta: { title: '广告管理', icon: 'table' },
+    meta: { title: '广告管理', icon: 'banner' },
     children: [
       {
         path: 'banner',
@@ -203,19 +232,19 @@ export const constantRoutes = [
     path: '/article',
     component: Layout,
     name: 'article',
-    meta: { title: '文章管理', icon: 'table' },
+    meta: { title: '文章管理', icon: 'article' },
     children: [
       {
         path: 'article',
         name: 'article_box',
         component: () => import('@/views/article/article/index'),
-        meta: { title: '文章列表', icon: '' },
+        meta: { title: '文章列表', icon: 'article' },
         children: [
           {
             path: 'index',
             name: 'article_index',
             component: () => import('@/views/article/article/list'),
-            meta: { title: '文章列表', icon: '' },
+            meta: { title: '文章列表', icon: 'article_category' },
           },
           {
             path: 'add_edit',
@@ -230,16 +259,91 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/account',
+    component: Layout,
+    name: 'account',
+    meta: { title: '充值对账管理', icon: 'rechargels' },
+    children: [
+      {
+        path: 'turnover_box',
+        component: () => import('@/views/account/index'),
+        name: 'turnover_box',
+        meta: { title: '充值对账管理', icon: 'rechargels' },
+        children: [
+          {
+            path: 'turnover',
+            name: 'turnover',
+            component: () => import('@/views/account/turnover/list'),
+            meta: { title: '流水列表', icon: '' },
+          },
+        ]
+      },
+
+      {
+        path: 'graph_box',
+        component: () => import('@/views/account/index'),
+        name: 'graph_box',
+        meta: { title: '充值对账管理', icon: 'rechargels' },
+        children: [
+          {
+            path: 'graph',
+            name: 'graph',
+            component: () => import('@/views/account/graph/list'),
+            meta: { title: '统计信息', icon: ''},
+          },
+        ]
+      }
+    ]
+  },
+
+  {
+    path: '/order',
+    component: Layout,
+    name: 'order',
+    meta: { title: '订单管理', icon: 'order' },
+    children: [
+      {
+        path: '/order_box',
+        component: () => import('@/views/order/index'),
+        name: 'order_box',
+        meta: { title: '订单列表', icon: 'order' },
+        children: [
+          {
+            path: 'order_index',
+            name: 'order_index',
+            component: () => import('@/views/order/order/list'),
+            meta: { title: '订单列表', icon: '' },
+          },
+        ]
+      },
+      {
+        path: '/packager_box',
+        component: () => import('@/views/order/index'),
+        name: 'packager_box',
+        meta: { title: '包裹列表', icon: 'order' },
+        children: [
+          {
+            path: 'packager_index',
+            name: 'packager_index',
+            component: () => import('@/views/order/package/list'),
+            meta: { title: '包裹列表', icon: ''},
+          },
+        ]
+      },
+    ]
+  },
+
+  {
     path: '/weight',
     component: Layout,
     redirect: '/weight/index',
-    meta: { title: '重量价格管理', icon: 'table' },
+    meta: { title: '重量价格管理', icon: 'package' },
     children:[
       {
         path: 'index',
         name: 'weight_index',
         component: () => import('@/views/weight/list'),
-        meta: { title: '重量价格管理', icon: '' },
+        meta: { title: '重量价格管理', icon: 'package' },
         hidden: true
       },
       {

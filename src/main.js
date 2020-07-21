@@ -46,6 +46,11 @@ Vue.prototype.domain = process.env.VUE_APP_BASE_API
 Vue.prototype.img_domain = process.env.VUE_APP_IMAGE_API
 Vue.config.productionTip = false
 Vue.prototype.$request = Request
+
+// main.js
+import echarts from 'echarts'
+Vue.prototype.$echarts = echarts;
+
 new Vue({
   el: '#app',
   router,
