@@ -14,7 +14,7 @@
 
       <div class="right-menu-item">
         <el-tooltip class="item" effect="dark" content="清除缓存" placement="bottom-start">
-          <i class="nav-icon el-icon-loading" title="清除缓存" @click="refreshPage" />
+          <i class="nav-icon el-icon-delete-solid" title="清除缓存" @click="clearCache" />
         </el-tooltip>
       </div>
 
@@ -42,7 +42,7 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-
+var self;
 export default {
   components: {
     Breadcrumb,
@@ -53,6 +53,9 @@ export default {
       'sidebar',
       'avatar'
     ])
+  },
+  created() {
+    self = this;
   },
   methods: {
     toggleSideBar() {
@@ -66,6 +69,29 @@ export default {
     refreshPage() {
       this.$store.dispatch('refresh/refreshRoute')
       // console.log(this.$router)
+    },
+    clearCache(){
+      const loading = this.$loading({
+        lock: true,
+        text: '清除缓存中',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
+
+      self.$request({url:'system/clear',method:'get'}).then(response=>{
+        if (response.code == 200){
+          self.$message.success('清除缓存成功');
+          loading.close();
+
+          return false;
+        }
+        loading.close();
+        self.$message.error('清除缓存失败');
+      }).catch(error=>{
+        self.$message.error(error);
+
+        loading.close();
+      })
     }
   }
 }
