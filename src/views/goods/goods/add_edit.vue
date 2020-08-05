@@ -26,15 +26,30 @@
 
 
         <el-form-item
+          label="商品主图">
+          <el-upload
+            class="avatar-uploader"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-change="uploadStateHandle">
+
+            <img v-if="params.thumb" :src="img_domain+params.thumb" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+
+
+        <el-form-item
           label="商品图片">
           <el-upload
             :action="uploadPath"
-            :on-change="uploadStateHandle"
+            :on-change="uploadsStateHandle"
             list-type="picture-card"
             name="file"
             :file-list="thumbMain"
             :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove">
+            :on-remove="handleRemove"
+          >
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible">
@@ -106,7 +121,6 @@
     components: {
       quillEditor
     },
-
     data() {
       return {
         params: {
@@ -119,6 +133,7 @@
           stock: 0,
           thumb:'',
           categories_id:[],
+          img_domain: this.img_domain,
         },
 
         methods: [],
@@ -157,10 +172,14 @@
             if (response.data.hasOwnProperty('info')){
               self.params = response.data.info;
               if (response.data.info.hasOwnProperty('thumb') && response.data.info.thumb){
-                self.thumbMain.push({
-                  'name' : 'main',
-                  'url' : self.img_domain+response.data.info.thumb,
-                });
+                response.data.info.thumb_list.split(',').map(item=>{
+                  self.thumbMain.push({
+                    'name' : 'main',
+                    'url' : self.img_domain+item,
+                  });
+                })
+
+                console.log(self.thumbMain)
               }
               self.category_select = response.data.category_select;
             }
@@ -177,7 +196,16 @@
         this.$refs[formName].validate((valid, object) => {
           if (valid) {
             let params = JSON.parse(JSON.stringify(self.params));
+            params.thumb = params.thumb.replace(self.img_domain, '');
+            params.thumb_list = self.thumbMain
 
+            params.thumb_list = [];
+            self.thumbMain.map(item=>{
+              console.log(item)
+              item.url = item.url.replace(self.img_domain, '');
+              params.thumb_list.push(item.url);
+            })
+            params.thumb_list= params.thumb_list.join();
             //判断创建还是提交
             let _url ='', _method='';
             if (self.params.id > 0){
@@ -219,7 +247,8 @@
       },
 
       handleRemove(file, fileList) {
-        // console.log(file, fileList);
+        console.log(file, fileList);
+        self.thumbMain = fileList;
       },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
@@ -227,25 +256,51 @@
       },
       // 上传后
       uploadStateHandle(file, fileList){
-
         if (file.status === "success" && file.response.code === 200){
           self.params.thumb = file.response.data.path
         }
       },
-
+      uploadsStateHandle(file, fileList){
+        if (file.status === "success" && file.response.code === 200){
+          self.thumbMain.push({
+            'name' : 'main',
+            'url' : self.img_domain+file.response.data.path,
+          });
+        }
+      },
       // 返回上一页
       goBack(){
         this.$router.go(-1); //返回上一层
       },
-    }
+    },
+
   }
-
-
-
-
 
 </script>
 
 <style scoped>
-
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+    border: 1px solid gray;
+  }
 </style>
