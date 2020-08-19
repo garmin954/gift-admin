@@ -38,7 +38,7 @@
 
       <el-table-column class-name="status-col" label="Status" width="110" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status==1?'正常':'禁用' }}</el-tag>
+          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status==1?'正常':'已禁用' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -58,8 +58,10 @@
       </el-table-column>
 
       <el-table-column align="center" prop="updated_at" label="操作">
-        <el-button size="mini" type="primary">编辑</el-button>
-        <el-button size="mini" type="danger">删除</el-button>
+        <template slot-scope="scope" v-if="scope.row.id > 1">
+        <el-link type="primary" @click="editUserInfo(scope.$index)">编辑</el-link>
+        <el-link type="danger" @click="deleteRowHandle(scope.row.id, scope.row.status)">{{ scope.row.status==1?"加入黑名单":"加入白名单"}}</el-link>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -75,6 +77,33 @@
         :total="total">
       </el-pagination>
     </div>
+
+    <el-dialog
+      title="修改"
+      :visible.sync="centerDialogVisible"
+      width="400px"
+      center>
+      <el-form :model="editForm">
+        <el-form-item label="账号余额">
+          <el-input v-model="editForm.balance" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="账户状态" >
+          <el-switch
+            v-model="editForm.status"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            :active-value="1"
+            :inactive-value="0">
+          </el-switch>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="centerDialogVisible = false">取 消</el-button>
+    <el-button :disabled="disabled" type="primary"  @click="submitEdit">确 定</el-button>
+  </span>
+    </el-dialog>
+
+
   </div>
 </template>
 
@@ -86,24 +115,28 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
+        1: 'success',
+        0: 'danger'
       }
       return statusMap[status]
     }
   },
   data() {
     return {
+      centerDialogVisible:false,
       list: null,
       listLoading: true,
-
-
-
       dialogAddEdit: false, // dialog框
       currentPage:1, // 当前页面
       pageSize:10, // 显示条数
       total:0,// 商品条数
+      editForm:{
+        balance:0,
+        status:0,
+        id:9999999999999999999,
+      },
+      disabled:false
+
     }
   },
   created() {
@@ -113,7 +146,11 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      self.$request({url:'/auth/user', method:'get'}).then(response=>{
+      let params = {
+        page_index:self.currentPage,
+        page_size:self.pageSize,
+      }
+      self.$request({url:'/auth/user', method:'get', params}).then(response=>{
         self.list = response.data.list
         self.total = response.data.total
         self.listLoading = false
@@ -121,33 +158,66 @@ export default {
 
       })
     },
-    deleteRowHandle(id){
-      this.$confirm('是否删除该条记录?', '提示', {
+    // 编辑
+    editUserInfo(index){
+      let {status, balance,id} = self.list[index]
+      self.centerDialogVisible = true;
+      self.$set(self.editForm, 'status', status);
+      self.$set(self.editForm, 'id', id);
+      self.$set(self.editForm, 'balance', balance);
+      console.log(self.list[index])
+    },
+    // 提交编辑;
+    submitEdit(){
+      self.disabled = true;
+      let params = self.editForm;
+      this.$request({url:`/user/userEdit`, method:'get', params}).then(response=>{
+        this.listLoading = false
+        if (response.code == 200){
+          this.$message({
+            type: 'success',
+            message: response.message
+          });
+          this.fetchData();
+        }
+
+        self.disabled = false
+        self.centerDialogVisible = false;
+    })
+    },
+    // 加入黑名单
+    deleteRowHandle(id, status){
+      let text = status==1?"黑":"白";
+      this.$confirm(`是否将改用户加入${text}名单?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        self.$request({url:`/goods/goods/${id}`, method:'DELETE'}).then(response=>{
+        let params = {
+          id: id,
+          status: status,
+        };
+        self.$request({url:`/user/userStatus`, method:'get', params}).then(response=>{
           this.listLoading = false
-          this.fetchData();
-        }).catch(error=>{
-
+          if (response.code == 200){
+            this.$message({
+              type: 'success',
+              message: response.message
+            });
+            this.fetchData();
+          }
         })
-
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消'
         });
       });
     },
     handleSizeChange(val) {
-      self.pageSize = val
-      self.fetchData()
+      self.pageSize = val;
+      self.listLoading = true;
+      self.fetchData();
     },
     handleCurrentChange(val) {
       self.currentPage= val;
