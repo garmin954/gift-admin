@@ -10,7 +10,7 @@
 
         <el-form-item>
           <el-button type="primary" @click="onSearch">查询</el-button>
-          <el-button type="success" @click="editOrCreate">创建</el-button>
+<!--          <el-button type="success" @click="editOrCreate">创建</el-button>-->
         </el-form-item>
 
       </el-form>

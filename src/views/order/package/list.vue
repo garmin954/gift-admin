@@ -7,10 +7,17 @@
         <el-form-item>
           <el-input v-model="searchField.name" placeholder="搜索名称"></el-input>
         </el-form-item>
-
+        <el-form-item label="">
+          <el-select v-model="searchField.status" placeholder="状态">
+            <el-option label="全部" value="-100"></el-option>
+            <el-option label="待支付" value="0"></el-option>
+            <el-option label="已支付待打印" value="1"></el-option>
+            <el-option label="已打印" value="2"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSearch">查询</el-button>
-          <el-button type="success" @click="editOrCreate">创建</el-button>
+<!--          <el-button type="success" @click="editOrCreate">创建</el-button>-->
         </el-form-item>
 
       </el-form>
@@ -34,8 +41,9 @@
         label="包裹状态"
       >
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status == 0">待支付</el-tag>
+          <el-tag type="warning" v-if="scope.row.status == 0">待支付</el-tag>
           <el-tag v-if="scope.row.status == 1">已支付</el-tag>
+          <el-tag type="success" v-if="scope.row.status == 2">已打印</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -63,6 +71,7 @@
         label="操作"
       >
         <template slot-scope="scope">
+          <el-button v-if="scope.row.status !== 2" size="mini" type="success" @click="printPackage(scope.row.id)">打印</el-button>
           <el-button size="mini" type="primary" @click="lookDetail(scope.row.id)">查看</el-button>
         </template>
       </el-table-column>
@@ -102,6 +111,7 @@
         // 搜索表单
         searchField: {
           name: '',
+          status:'-100',
         },
 
         currentPage:1, // 当前页面
@@ -114,6 +124,22 @@
       this.fetchData()
     },
     methods: {
+      printPackage(id){
+        self.$confirm('是否打印该包裹?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let params = {id: id}
+            self.$request({url:`/order/printPackage`, method:'post', params}).then(response=>{
+              self.$message.info(response.message)
+              this.listLoading = false
+              this.fetchData();
+            }).catch(error=>{
+
+            })
+        })
+      },
       // 切换栏目
       toggleSideBar(state='') {
         this.$store.dispatch('app/toggleSideBar', state)
